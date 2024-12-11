@@ -11,11 +11,11 @@ load_dotenv()
 
 # Configuration
 excel_file = "leads.xlsx"  # Your Excel file name
-pdf_file = "attachment.pdf"  # PDF file to attach
-email_sender = "your_email@gmail.com"
-email_password = "your_password"
-smtp_server = "smtp.gmail.com"
-smtp_port = 587
+pdf_file = os.getenv("pdf_file")  # PDF file to attach
+email_sender = os.getenv("email_sender")
+email_password = os.getenv("email_password")
+smtp_server = os.getenv("smtp_server")
+smtp_port = os.getenv("smtp_port")
 batch_size = 50  # Number of emails to send per batch
 delay_between_batches = 10  # Delay in seconds between batches
 
@@ -24,7 +24,7 @@ def read_excel_filtered(excel_file, start_no):
     Reads the Excel file and filters rows based on the start_no parameter.
     """
     leads = pd.read_excel(excel_file)
-    filtered_leads = leads[leads["no"] >= start_no]
+    filtered_leads = leads[(leads["no"] >= start_no) & (leads["no"] <= end_no)]
     return filtered_leads
 
 def send_email(recipient_email, subject, body, attachment=None):
@@ -71,14 +71,13 @@ def process_email_blast(excel_file, start_no, pdf_file=None):
     for i, row in leads.iterrows():
         recipient_name = row["name"]
         recipient_email = row["email"]
-        recipient_type = row["type"]
 
         # Customize the email content
         subject = f"Hello {recipient_name}!"
         body = f"""
         Hi {recipient_name},
 
-        We have exciting updates for the {recipient_type} industry. 
+        We have exciting updates for your industry. 
         Please find the attached document for more details.
 
         Best regards,
