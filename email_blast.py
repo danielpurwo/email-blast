@@ -6,10 +6,12 @@ from email.mime.base import MIMEBase
 from email import encoders
 import os
 import time
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configuration
-csv_file = "compile for blast.csv"  # Your CSV file name
-pdf_file = "Company Profile - GA - N.pdf"  # PDF file to attach
+excel_file = "leads.xlsx"  # Your Excel file name
+pdf_file = "attachment.pdf"  # PDF file to attach
 email_sender = "your_email@gmail.com"
 email_password = "your_password"
 smtp_server = "smtp.gmail.com"
@@ -17,11 +19,11 @@ smtp_port = 587
 batch_size = 50  # Number of emails to send per batch
 delay_between_batches = 10  # Delay in seconds between batches
 
-def read_csv_filtered(csv_file, start_no):
+def read_excel_filtered(excel_file, start_no):
     """
-    Reads the CSV file and filters rows based on the start_no parameter.
+    Reads the Excel file and filters rows based on the start_no parameter.
     """
-    leads = pd.read_csv(csv_file)
+    leads = pd.read_excel(excel_file)
     filtered_leads = leads[leads["no"] >= start_no]
     return filtered_leads
 
@@ -59,30 +61,28 @@ def send_email(recipient_email, subject, body, attachment=None):
     except Exception as e:
         print(f"Failed to send email to {recipient_email}: {e}")
 
-def process_email_blast(csv_file, start_no, pdf_file=None):
+def process_email_blast(excel_file, start_no, pdf_file=None):
     """
     Processes the email blast by filtering rows and sending emails in batches.
     """
-    leads = read_csv_filtered(csv_file, start_no)
+    leads = read_excel_filtered(excel_file, start_no)
     print(f"Starting email blast from 'no' {start_no}. Total leads: {len(leads)}")
 
     for i, row in leads.iterrows():
         recipient_name = row["name"]
         recipient_email = row["email"]
+        recipient_type = row["type"]
 
         # Customize the email content
         subject = f"Hello {recipient_name}!"
         body = f"""
-        Kepada Yth. Bapak/Ibu,
-        Dengan hormat,
+        Hi {recipient_name},
 
-        
-        Perkenalkan kami Analyset, merupakan perusahaan Teknologi Informasi yang berfokus pada pengembangan Data Analytic, Machine Learning, Computer Vision dan AI. Analyset sudah membantu dan telah dipercaya oleh banyak Perusahaan di Indonesia sebagai penyedia layanan dan konsultan IT. 
-        
-        Bersama dengan email ini, kami bermaksud mengajukan kerjasama Pengembangan Produk IT kepada perusahaan Anda. Anda bisa lihat Proposal lengkap tentang layanan Analyset dengan melihat tautan company profile kami #BetterDecision
-        
+        We have exciting updates for the {recipient_type} industry. 
+        Please find the attached document for more details.
+
         Best regards,
-        Analyset
+        Your Company
         """
 
         # Send the email with the PDF attachment
@@ -96,4 +96,4 @@ def process_email_blast(csv_file, start_no, pdf_file=None):
 # Start the process
 if __name__ == "__main__":
     start_no = int(input("Enter the starting 'no' parameter: "))
-    process_email_blast(csv_file, start_no, pdf_file)
+    process_email_blast(excel_file, start_no, pdf_file)
